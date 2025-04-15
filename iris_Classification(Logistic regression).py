@@ -35,7 +35,7 @@ def Data_Details(data):
 def Data_Preprocessing(data):
     if data.isna().sum().sum() > 0:
         data=data.fillna(data.mean())
-    
+
         
     if data.isnull().sum().sum() > 0:
         data=data.dropna()
