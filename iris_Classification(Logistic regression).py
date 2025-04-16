@@ -20,7 +20,7 @@ def load_dataset():
     return df
 
 
-def Data_Details(data):
+def data_details(data):
     print('Data Details')
     print('Top 5 Rows \n',data.head())
     print(f"\nDataset Shape: {data.shape}")
@@ -32,7 +32,7 @@ def Data_Details(data):
     print("\nData Information:")
     print(data.info())
 
-def Data_Preprocessing(data):
+def data_preprocessing(data):
     if data.isna().sum().sum() > 0:
         data=data.fillna(data.mean())
 
@@ -45,7 +45,7 @@ def Data_Preprocessing(data):
         
     return data
 
-def Data_Visualization(data):
+def data_visualization(data):
 
     plt.figure(figsize=(15, 10))
     sns.pairplot(data, hue='species', palette='viridis')
@@ -57,7 +57,7 @@ def Data_Visualization(data):
  
 
 
-def Data_Encoding(data):
+def data_encoding(data):
     label_encoder = LabelEncoder()
     data['species'] = label_encoder.fit_transform(data['species'])
     return data
@@ -76,7 +76,7 @@ def data_split(data):
     return X_train, X_test, X_check, y_train, y_test, y_check
 
 
-def data_StandardScaler(X_train, X_test, X_check):
+def data_standardScaler(X_train, X_test, X_check):
     scaler = StandardScaler()
     X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train))
     X_test_scaled = pd.DataFrame(scaler.transform(X_test))
@@ -87,12 +87,12 @@ def data_StandardScaler(X_train, X_test, X_check):
     return X_train_scaled, X_test_scaled, X_check_scaled
 
 
-def Model_Training(X_train_scaled ,y_train):
+def model_training(X_train_scaled ,y_train):
     model=LogisticRegression()
     model.fit(X_train_scaled,y_train)
     return model
 
-def Model_Evaluation(model, X_test_scaled, y_test):
+def model_evaluation(model, X_test_scaled, y_test):
     # Use .values consistently to avoid warnings
     y_pred = model.predict( X_test_scaled)
     print("Accuracy:", accuracy_score(y_test, y_pred))
@@ -101,7 +101,7 @@ def Model_Evaluation(model, X_test_scaled, y_test):
 
     print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
     print("Classification Report:\n", classification_report(y_test, y_pred))  
-def Model_Prediction(model, X_check_scaled, y_check):
+def model_prediction(model, X_check_scaled, y_check):
     
     y_pred = model.predict(X_check_scaled)
     print("Actual:\n",np.array(y_check))
@@ -111,7 +111,7 @@ def Model_Prediction(model, X_check_scaled, y_check):
     print(" Model Score:", model.score(X_check_scaled, y_check))
     print("\n Classification Report:\n", classification_report(y_check, y_pred))
     
-def Save_Model(model):
+def save_model(model):
     with open('my_model.pkl', 'wb') as file:
         pickle.dump(model, file)
     print("Model saved to my_model.pkl")
@@ -120,16 +120,16 @@ def Save_Model(model):
     
 def main():
     df=load_dataset()
-    Data_Details(df)
-    df=Data_Preprocessing(df)
-    Data_Visualization(df)
-    df=Data_Encoding(df)
+    data_details(df)
+    df=data_preprocessing(df)
+    data_visualization(df)
+    df=data_encoding(df)
     X_train, X_test, X_check, y_train, y_test, y_check=data_split(df)
-    X_train_scaled, X_test_scaled, X_check_scaled=data_StandardScaler(X_train, X_test, X_check)
-    model=Model_Training(X_train_scaled, y_train)
-    Model_Evaluation(model,X_test_scaled,y_test)
-    Model_Prediction(model,X_check_scaled,y_check)
-    Save_Model(model)
+    X_train_scaled, X_test_scaled, X_check_scaled=data_standardScaler(X_train, X_test, X_check)
+    model=model_training(X_train_scaled, y_train)
+    model_evaluation(model,X_test_scaled,y_test)
+    model_prediction(model,X_check_scaled,y_check)
+    save_model(model)
     
     
 
