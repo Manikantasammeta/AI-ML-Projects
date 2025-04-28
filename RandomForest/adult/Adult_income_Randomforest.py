@@ -11,8 +11,8 @@ from sklearn.linear_model import LinearRegression ,LogisticRegression
 from sklearn.metrics import confusion_matrix ,log_loss ,classification_report ,accuracy_score
 import pickle  
 
-
-def data_importing():
+print("Hello")
+def data_loading():
     df=pd.read_csv('adult.data',na_values=' ?',header=None)
     return df
 
@@ -33,9 +33,10 @@ def data_details(df):
 def handle_null_values(df):
     for col in df.columns:
         if df[col].dtype == 'object':  # If the column is categorical
-            df[col].fillna(df[col].mode()[0], inplace=True)
+            df[col] = df[col].fillna(df[col].mode()[0])
         else:  # If the column is numerical
-            df[col].fillna(df[col].mean(), inplace=True)
+            df[col] = df[col].fillna(df[col].mean())
+
     return df
 
 def data_visualization(df):
@@ -140,3 +141,30 @@ def save_model(model):
     with open('my_model.pkl', 'wb') as file:
         pickle.dump(model, file)
     print("Model saved to my_model.pkl")
+    
+    
+    
+    
+    
+def main():
+    df=data_loading()
+    data_details(df)
+    data_details(df)
+    df.columns = ['age','job_type','person_weight','education_level','education_years',
+            'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
+            'capital_loss','weekly_hours','country_of_origin','income']
+    print(df.columns)
+    if df.isnull().sum().sum() > 0:
+        handle_null_values(df)
+    # #data_visualization(df)
+    # df=data_encoding(df)
+    # X_train, X_test, X_check, y_train, y_test, y_check=data_split(df)
+    # X_train_scaled, X_test_scaled, X_check_scaled=data_standardScaler(X_train, X_test, X_check)
+    # models=model_training(X_train_scaled ,y_train)
+    # moel_evaluation(models,X_test_scaled,y_test)
+    # model_prediction(models,X_check_scaled,y_check)
+    
+    
+    
+if __name__ == "__main__":
+    main()
