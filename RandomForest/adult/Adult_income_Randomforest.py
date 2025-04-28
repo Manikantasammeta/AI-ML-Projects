@@ -3,14 +3,12 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-
 from sklearn.preprocessing import LabelEncoder ,StandardScaler
 from sklearn.ensemble import *
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier , DecisionTreeRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LinearRegression ,LogisticRegression
 from sklearn.metrics import confusion_matrix ,log_loss ,classification_report ,accuracy_score
-
 import pickle  
 
 
@@ -103,6 +101,7 @@ def model_training(X_train_scaled ,y_train):
         RandomForestRegressor(),
         LinearRegression(),
         DecisionTreeClassifier(),
+        DecisionTreeRegressor(),
         LogisticRegression()
     ]
     trained_models=[]
