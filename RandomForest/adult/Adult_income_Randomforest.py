@@ -10,7 +10,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LinearRegression ,LogisticRegression
 from sklearn.metrics import confusion_matrix ,log_loss ,classification_report ,accuracy_score
 import pickle  
-import streamlit as st
+
 
 print("Hello")
 def data_loading():
@@ -169,9 +169,23 @@ def save_model(model):
     print("Model saved to my_model.pkl")
     
     
+def testing_model_with_adult_test_data(model):
+    df=pd.read_csv("adult_test.csv")   
+    df.columns = ['age','job_type','person_weight','education_level','education_years',
+            'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
+            'capital_loss','weekly_hours','country_of_origin','income']
     
+    if df.isnull().sum().sum() > 0:
+        handle_null_values(df)
     
+    df=adding_new_features(df)
+    if df.isnull().sum().sum() > 0:
+        handle_null_values(df)
+        
+    scaled_test_data=data_standardScaler(df)
+    print('Accuracy of the model on test data:',model.score())
     
+   
 def main():
     df=data_loading()
     
@@ -198,79 +212,8 @@ def main():
     model=model_training(X_train_scaled ,y_train)
     moel_evaluation(model,X_test_scaled,y_test)
     model_prediction(model,X_check_scaled,y_check)
-    return model
-    
- 
- 
-def app(model):
-    df=data_loading()
-    df.columns = ['age','job_type','person_weight','education_level','education_years',
-            'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
-            'capital_loss','weekly_hours','country_of_origin','income']
-
-    
-    st.title("Adult Income Prediction")
-    age = st.number_input("Enter your age:", min_value=0, max_value=100, step=1)
-    job_type = st.selectbox("Select your job type:", df['job_type'].unique())
-    person_weight = st.number_input("Enter your weight:", min_value=0, max_value=200, step=1)
-    education_level = st.selectbox("Select your education level:", df['education_level'].unique())
-    education_years = st.number_input("Enter your education years:", min_value=0, max_value=20, step=1)
-    marital_status = st.selectbox("Select your marital status:", df['marital_status'].unique())
-    job_role = st.selectbox("Select your job role:", df['job_role'].unique())
-    family_role = st.selectbox("Select your family role:", df['family_role'].unique())
-    ethnicity = st.selectbox("Select your ethnicity:", df['ethnicity'].unique())
-    gender = st.selectbox("Select your gender:", df['gender'].unique())
-    capital_gain = st.number_input("Enter your capital gain:", min_value=0, max_value=100000, step=1)
-    capital_loss = st.number_input("Enter your capital loss:", min_value=0, max_value=100000, step=1)
-    weekly_hours = st.number_input("Enter your weekly hours:", min_value=0, max_value=100, step=1)
-    country_of_origin = st.selectbox("Select your country of origin:", df['country_of_origin'].unique())
-    scaler = StandardScaler()
-    
-    if st.button("Predict"):
-       
-            
-
-    # Load the already-fitted scaler
-        with open("scaler.pkl", "rb") as f:
-            scaler = pickle.load(f)
-
-        input_data = pd.DataFrame([[age,job_type,person_weight,education_level,education_years,
-                                    marital_status,job_role,family_role,ethnicity,gender,capital_gain,
-                                    capital_loss,weekly_hours,country_of_origin]],
-                    columns=['age','job_type','person_weight','education_level','education_years',
-                                'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
-                                    'capital_loss','weekly_hours','country_of_origin'])
-
-        input_data = adding_new_features(input_data)
-        
-
-        numerical_cols = ['age', 'person_weight', 'education_years', 'capital_gain', 'capital_loss', 'weekly_hours']
-        categorical_cols = ['job_type', 'education_level', 'marital_status', 'job_role',
-                            'family_role', 'ethnicity', 'gender', 'country_of_origin']
-
-        numerical_data = input_data[numerical_cols]
-        categorical_data = input_data[categorical_cols]
-        numerical_data=data_encoding(numerical_data)
-        categorical_data=data_encoding(categorical_data)
-        
-
-        # ⚡ No need to fit again, directly transform
-        numerical_data_scaled = scaler.transform(numerical_data)
-
-        categorical_data_encoded = pd.get_dummies(categorical_data, drop_first=True)
-
-        input_data_processed = pd.concat(
-            [pd.DataFrame(numerical_data_scaled, columns=numerical_cols), categorical_data_encoded],
-            axis=1
-        )
-
-        prediction = trained_model.predict(input_data_processed)
-
-        class_names = ['<=50K', '>50K']
-        predicted_class_name = class_names[prediction[0]]
-        st.write(f"Predicted class: {predicted_class_name}")
+    save_model(model)
 
     
 if __name__ == "__main__":
-    trained_model=main()
-    app(trained_model)
+    main()
