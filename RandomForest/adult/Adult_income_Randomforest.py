@@ -118,16 +118,15 @@ def data_split(df):
 
 
 
-def data_standardScaler(X_train, X_test, X_check):
+def data_standardScaler(df):
     scaler = StandardScaler()
-    X_train_scaled = pd.DataFrame(scaler.fit_transform(X_train))
-    X_test_scaled = pd.DataFrame(scaler.transform(X_test))
-    X_check_scaled = pd.DataFrame(scaler.transform(X_check))
-
-    with open("scaler.pkl", "wb") as f:
-        pickle.dump(scaler, f)
+    X_train_scaled = pd.DataFrame(scaler.fit_transform(df))
+ 
     
-    return X_train_scaled, X_test_scaled, X_check_scaled
+    with open("scaler.pkl", "wb") as f:
+        pickle.dump(scaler,f)
+    
+    return X_train_scaled
 
 def model_training(X_train_scaled ,y_train):
     model=RandomForestRegressor()
@@ -170,20 +169,26 @@ def save_model(model):
     
     
 def testing_model_with_adult_test_data(model):
-    df=pd.read_csv("adult_test.csv")   
+    df=df = pd.read_csv('C:\\Users\\manik\\Downloads\\AI & ML Projects\\RandomForest\\adult\\adult_test.data',na_values=' ?',header=None,delimiter=',', skiprows=1) 
+    
     df.columns = ['age','job_type','person_weight','education_level','education_years',
             'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
             'capital_loss','weekly_hours','country_of_origin','income']
-    
+    y=df['income']
+    df=df.drop('income',axis=1)
     if df.isnull().sum().sum() > 0:
         handle_null_values(df)
     
     df=adding_new_features(df)
     if df.isnull().sum().sum() > 0:
         handle_null_values(df)
-        
+    df=data_encoding(df) 
     scaled_test_data=data_standardScaler(df)
-    print('Accuracy of the model on test data:',model.score())
+    y=y.apply(lambda x: 0 if x == '<=50K' else 1)
+    print('Accuracy of the model on test data:',model.score(scaled_test_data,y))
+    print("Confusion Matrix:\n", confusion_matrix(y, model.predict(scaled_test_data),labels = [0, 1] ) )
+    print("Classification Report:\n", classification_report(y, model.predict(scaled_test_data)))
+    print("Accuracy:", accuracy_score(y, model.predict(scaled_test_data)))
     
    
 def main():
@@ -193,8 +198,8 @@ def main():
     df.columns = ['age','job_type','person_weight','education_level','education_years',
             'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
             'capital_loss','weekly_hours','country_of_origin','income']
-    
-    print(df.columns)
+    y=df['income']
+    df=df.drop('income',axis=1)
     if df.isnull().sum().sum() > 0:
         handle_null_values(df)
    
@@ -203,15 +208,17 @@ def main():
         handle_null_values(df)
     
     #data_visualization(df)
-    df['income'] = df['income'].apply(lambda x: 0 if x == '<=50K' else 1)
+    y = y.apply(lambda x: 0 if x == '<=50K' else 1)
     df=data_encoding(df)
-    X_train, X_test, X_check, y_train, y_test, y_check=data_split(df)
+    #X_train, X_test, X_check, y_train, y_test, y_check=data_split(df)
     
-    X_train_scaled, X_test_scaled, X_check_scaled=data_standardScaler(X_train, X_test, X_check)
+    X_train_scaled=data_standardScaler(df)
     
-    model=model_training(X_train_scaled ,y_train)
-    moel_evaluation(model,X_test_scaled,y_test)
-    model_prediction(model,X_check_scaled,y_check)
+    model=model_training(X_train_scaled ,y)
+    # moel_evaluation(model,X_test_scaled,y_test)
+    # model_prediction(model,X_check_scaled,y_check)
+    testing_model_with_adult_test_data(model)
+    
     save_model(model)
 
     
