@@ -224,3 +224,24 @@ def main():#main function
     
 if __name__ == "__main__":
     main()
+    
+    
+    
+''' 
+step1 importing the libraries
+step2  Loading the dataset
+step3  check the data set
+step4  Adding the column with new 
+step5  spliting target variable and features 
+step6  check the null values if have handeling the null values
+step7 Adding new features based on the existing features
+step8 Again check the null values if have handeling the null values 
+step9 data visulization
+step10 encoding the categorical features
+step11 data standardization
+step12 model training
+step13 model evaluation
+step14 model prediction
+step15 saving the model
+
+'''

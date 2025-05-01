@@ -58,3 +58,24 @@ def app(): #main function
     
 if __name__ == "__main__":
     app()
+    
+    
+'''
+step16 importing the libraries
+step17 importing  saved trained model
+step18 loading the dataset for tacking input
+step19 renaming the columns
+step20 tacking user input 
+step21 if the user click on predict
+step22 loading the scaler
+step23 configuring the input data with columns
+step24 adding new features to the dataset
+step25 encoding the categorical features
+step26 scaling the data
+step27 predicting the income
+step28 showing the prediction
+
+
+
+
+'''
