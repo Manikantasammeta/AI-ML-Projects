@@ -1,21 +1,21 @@
 import streamlit as st
 import pandas as pd
-from Adult_income_Randomforest import *
+from Adult_income_Randomforest import * # importing all the functions from the Adult_income_Randomforest.py to apply on the user input
 import pickle
-def app():
-    with open('my_model.pkl', 'rb') as file:
+def app(): #main function
+    with open('my_model.pkl', 'rb') as file: #loading the model
         model = pickle.load(file)
-    df=data_loading()
+    df=data_loading()#loading the dataset
     df.columns = ['age','job_type','person_weight','education_level','education_years',
               'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
-              'capital_loss','weekly_hours','country_of_origin','income']
+              'capital_loss','weekly_hours','country_of_origin','income'] #renaming the columns
 
    
 
     
-    st.title("Adult Income Prediction")
+    st.title("Adult Income Prediction")  # Here i Use some streamlit functions for tacking user input in a organized way
     age = st.number_input("Enter your age:", min_value=0, max_value=100, step=1)
-    job_type = st.selectbox("Select your job type:", df['job_type'].unique())
+    job_type = st.selectbox("Select your job type:", df['job_type'].unique()) 
     person_weight = st.number_input("Enter your weight:", min_value=0, max_value=200, step=1)
     education_level = st.selectbox("Select your education level:", df['education_level'].unique())
     education_years = st.number_input("Enter your education years:", min_value=0, max_value=20, step=1)
@@ -35,7 +35,7 @@ def app():
             
 
     # Load the already-fitted scaler
-        with open("scaler.pkl", "rb") as f:
+        with open("scaler.pkl", "rb") as f: #loading the scaler
             scaler = pickle.load(f)
 
         input_data = pd.DataFrame([[age,job_type,person_weight,education_level,education_years,
@@ -43,9 +43,9 @@ def app():
                                     capital_loss,weekly_hours,country_of_origin]],
                     columns=['age','job_type','person_weight','education_level','education_years',
                                 'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
-                                    'capital_loss','weekly_hours','country_of_origin'])
+                                    'capital_loss','weekly_hours','country_of_origin']) #configuring the input data with columns
        
-        df=adding_new_features(input_data)
+        df=adding_new_features(input_data)      # do all the things that we did in training data
         # input_data = adding_new_features(input_data)
         df=data_encoding(input_data)
         data=scaler.transform(df)
