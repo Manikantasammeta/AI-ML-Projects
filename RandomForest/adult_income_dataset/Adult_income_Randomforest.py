@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder ,StandardScaler
-from sklearn.ensemble import *
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier , DecisionTreeRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LinearRegression ,LogisticRegression
@@ -31,6 +31,15 @@ def data_details(df): # displaying the details of the dataset
     print("The columns of the dataset are ->\n")
     print(df.columns)
     print("*"*100)
+    
+def removeing_duplicates(df):# removing the duplicates in the dataset
+    if df.duplicated().sum() > 0:
+        df=df.drop_duplicates()
+    return df    
+def Checking_Null_Value_percentage(df):# checking the null values in the dataset
+    for i in df.columns:
+        if df[i].isnull().sum() > 0:
+            print(df[i],"-->",np.round(df[i].isnull().mean()*100,5))
     
 def handle_null_values(df): # handling the null values in the dataset
     for col in df.columns:
@@ -90,7 +99,12 @@ def adding_new_features(df):# adding new features to the dataset
 
     return df
 
-
+def fix_outlayers(df):
+    for i in df.columns:
+        if df[i].dtype != 'object':
+            df[i] = np.log1p(df[i])
+    return df
+           
 
 
 def data_encoding(df):                                  # Label Encoding
@@ -129,7 +143,7 @@ def data_standardScaler(df):#data standardization of dataset
     return X_train_scaled
 
 def model_training(X_train_scaled ,y_train): #model training
-    model=RandomForestRegressor()# creating a model
+    model=DecisionTreeClassifier()# creating a model
     model.fit(X_train_scaled,y_train)
     print("Models are trained\n",model)
     print("*"*100)
@@ -168,23 +182,29 @@ def save_model(model):#model saving in a file(my_model.pkl) for future use in pr
     print("Model saved to my_model.pkl")
     
     
-def testing_model_with_adult_test_data(model): #testing the model with test data
-    df=df = pd.read_csv('C:\\Users\\manik\\Downloads\\AI & ML Projects\\RandomForest\\adult\\adult_test.data',na_values=' ?',header=None,delimiter=',', skiprows=1) #loading the test data
+def testing_model_with_adult_test_data(model):
+    print("Testing","*"*100) 
+    df = pd.read_csv("C:\\Users\\manik\\Downloads\\AI & ML Projects\\RandomForest\\adult_income_dataset\\adult_test.data", na_values=' ?', header=None, delimiter=',', skiprows=1)
     
     df.columns = ['age','job_type','person_weight','education_level','education_years',
             'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
             'capital_loss','weekly_hours','country_of_origin','income'] #renaming the columns
+    df=removeing_duplicates(df)
     y=df['income']#separating the target variable              do all the things that we did in training data
+    print("yvalues ",y.unique())
     df=df.drop('income',axis=1)
     if df.isnull().sum().sum() > 0:
-        handle_null_values(df)
+        handle_null_values(df)          
+        
     
     df=adding_new_features(df)
     if df.isnull().sum().sum() > 0:
         handle_null_values(df)
+    df=fix_outlayers(df)
     df=data_encoding(df) 
     scaled_test_data=data_standardScaler(df)
-    y=y.apply(lambda x: 0 if x == '<=50K' else 1) #converting the target variable to 0 and 1
+    y=y.apply(lambda x: 0 if x == ' <=50K' else 1) #converting the target variable to 0 and 1
+    print(y.value_counts())
     print('Accuracy of the model on test data:',model.score(scaled_test_data,y))
     print("Confusion Matrix:\n", confusion_matrix(y, model.predict(scaled_test_data),labels = [0, 1] ) )
     print("Classification Report:\n", classification_report(y, model.predict(scaled_test_data)))
@@ -198,28 +218,41 @@ def main():#main function
     df.columns = ['age','job_type','person_weight','education_level','education_years',
             'marital_status','job_role','family_role','ethnicity','gender','capital_gain',
             'capital_loss','weekly_hours','country_of_origin','income']
+    
+    
+    df=removeing_duplicates(df)
+    
     y=df['income'] #separating the target variable
     df=df.drop('income',axis=1)
+    print("After removing duplicates",y.shape,df.shape)
+    
+    
+    
+    print(y.unique())
     if df.isnull().sum().sum() > 0:
+        Checking_Null_Value_percentage(df)
         handle_null_values(df)
+        
    
     df=adding_new_features(df)
     if df.isnull().sum().sum() > 0:
         handle_null_values(df)
-    
-    #data_visualization(df)     # uncomment this line if you want to see the data visualization
-    y = y.apply(lambda x: 0 if x == '<=50K' else 1)
+   
+    # #data_visualization(df)     # uncomment this line if you want to see the data visualization
+    y = y.apply(lambda x: 0 if x == ' <=50K' else 1)
+    print(y.unique())
+    df=fix_outlayers(df)
     df=data_encoding(df)
-    #X_train, X_test, X_check, y_train, y_test, y_check=data_split(df)      # suppose you guys don't have saperate test data set then go for splitting the data
+    # #X_train, X_test, X_check, y_train, y_test, y_check=data_split(df)      # suppose you guys don't have saperate test data set then go for splitting the data
     
     X_train_scaled=data_standardScaler(df) 
-    
+    print(y.shape,X_train_scaled.shape)
     model=model_training(X_train_scaled ,y)
-    # moel_evaluation(model,X_test_scaled,y_test)    # if you going with splitting the data then uncomment this line and use this line for model evaluation
-    # model_prediction(model,X_check_scaled,y_check) # if you going with splitting the data then uncomment this line and use this line for model prediction
+    # # moel_evaluation(model,X_test_scaled,y_test)    # if you going with splitting the data then uncomment this line and use this line for model evaluation
+    # # model_prediction(model,X_check_scaled,y_check) # if you going with splitting the data then uncomment this line and use this line for model prediction
     testing_model_with_adult_test_data(model)       # evaluating the model with test data
     
-    save_model(model)#finally saving the model
+    # save_model(model)#finally saving the model
 
     
 if __name__ == "__main__":
